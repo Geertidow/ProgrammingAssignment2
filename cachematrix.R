@@ -1,15 +1,51 @@
-## Put comments here that give an overall description of what your
-## functions do
+#first create matrix and a inverse matrix (to serve as control)
+q <- matrix(replicate(20,rnorm(20)),nrow=20,ncol=20)
+r <- solve(q)
 
-## Write a short comment describing this function
+#first function to cache an inverse list, but it returns a non-inverted matrix (the original)
+makeCachematrix <- function(x = matrix())
+  {
+  m <- NULL
+  get <- function() x
+  setsolve <- function(solve) m <<- solve
+  getsolve <- function() m
+  z <<- list(get=get, setsolve=setsolve, getsolve=getsolve)
+  return(x)
+  }
+#the result of fuction is thus the original matrix, but cache is inverted
+s <- makeCachematrix(q)
 
-makeCacheMatrix <- function(x = matrix()) {
 
-}
+cacheSolve <- function(x, ...) 
+  {
+  if(exists("z"))
+    {
+    x <- z
+    m <- x$getsolve()
+    }
+  if(!is.null(m)) 
+    {
+    message("getting cached data")
+    x <- m
+    return(m)
+    }
+  else
+    {
+    data <- x$get()
+    m <- solve(data, ...)
+    x$setsolve(m)
+    x <- m
+    return(x)
+    }
+  }
 
+t <- cacheSolve(s)
+u <- cacheSolve(q)
 
-## Write a short comment describing this function
+#check function
+identical(t,u)
+identical(r,u)
 
-cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
-}
+#remove
+rm(list=ls())
+
